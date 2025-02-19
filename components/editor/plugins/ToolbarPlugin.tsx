@@ -1,10 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
 import {
@@ -35,6 +28,8 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
+import { EditorState } from 'lexical';
+import { LexicalEditor } from 'lexical';
 
 const LowPriority = 1;
 
@@ -66,14 +61,14 @@ export default function ToolbarPlugin() {
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerUpdateListener(({ editorState }) => {
+      editor.registerUpdateListener(({ editorState }: { editorState: EditorState }) => {
         editorState.read(() => {
           $updateToolbar();
         });
       }),
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
-        (_payload, _newEditor) => {
+        (_payload: any, _newEditor: LexicalEditor) => {
           $updateToolbar();
           return false;
         },
@@ -81,7 +76,7 @@ export default function ToolbarPlugin() {
       ),
       editor.registerCommand(
         CAN_UNDO_COMMAND,
-        (payload) => {
+        (payload: boolean) => {
           setCanUndo(payload);
           return false;
         },
@@ -89,7 +84,7 @@ export default function ToolbarPlugin() {
       ),
       editor.registerCommand(
         CAN_REDO_COMMAND,
-        (payload) => {
+        (payload: boolean) => {
           setCanRedo(payload);
           return false;
         },
@@ -99,27 +94,22 @@ export default function ToolbarPlugin() {
   }, [editor, $updateToolbar]);
 
   function toggleBlock(type: 'h1' | 'h2' | 'h3' | 'quote') {
-    const selection = $getSelection();
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection)) return;
 
-    if (activeBlock === type) {
-      return $setBlocksType(selection, () => $createParagraphNode());
-    }
-
-    if (type === 'h1') {
-      return $setBlocksType(selection, () => $createHeadingNode('h1'));
-    }
-
-    if (type === 'h2') {
-      return $setBlocksType(selection, () => $createHeadingNode('h2'));
-    }
-
-    if (type === 'h3') {
-      return $setBlocksType(selection, () => $createHeadingNode('h3'));
-    }
-
-    if (type === 'quote') {
-      return $setBlocksType(selection, () => $createQuoteNode());
-    }
+      if (activeBlock === type) {
+        $setBlocksType(selection, () => $createParagraphNode());
+      } else if (type === 'h1') {
+        $setBlocksType(selection, () => $createHeadingNode('h1'));
+      } else if (type === 'h2') {
+        $setBlocksType(selection, () => $createHeadingNode('h2'));
+      } else if (type === 'h3') {
+        $setBlocksType(selection, () => $createHeadingNode('h3'));
+      } else if (type === 'quote') {
+        $setBlocksType(selection, () => $createQuoteNode());
+      }
+    });
   }
 
   return (
