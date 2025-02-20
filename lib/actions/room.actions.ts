@@ -3,7 +3,6 @@ import { nanoid } from "nanoid";
 import { liveblocks } from "../liveblocks";
 import { revalidatePath } from "next/cache";
 import { parseStringify } from "../utils";
-import { error } from "console";
 export const createDocument = async ({
   userId,
   email,
@@ -54,5 +53,14 @@ export const updateDocument = async(roomId:string, title:string) => {
     return parseStringify(updatedRoom);
   }catch(error){
     console.error(`Error happened while updating a room: ${error}`);
+  }
+}
+export const getDocuments = async(email: string) => {
+  try{
+    const rooms = await liveblocks.getRooms({userId: email});
+
+    return parseStringify(rooms);
+  }catch(error){
+    console.error(`Error happened while getting rooms: ${error}`);
   }
 }
