@@ -5,15 +5,13 @@ import { redirect } from 'next/navigation';
 import React from 'react'
 
 interface SearchParamProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 const Document = async ({ params }: SearchParamProps) => {
-  // Await the params
   const { id } = await params;
-  
   const clerkUser = await currentUser();
   if(!clerkUser) redirect('/sign-in')
 
@@ -23,7 +21,6 @@ const Document = async ({ params }: SearchParamProps) => {
   })
 
   if(!room) redirect('/')
-  
   return (
     <main className='flex w-full flex-col items-center'>
       <CollaborativeRoom
