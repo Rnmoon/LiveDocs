@@ -14,7 +14,7 @@ const fontSans = FontSans({
 });
 export const metadata: Metadata = {
   title: 'LiveDocs',
-  description: 'Your go-to collabrative editor'
+  description: 'Collabrative editor'
 }
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
